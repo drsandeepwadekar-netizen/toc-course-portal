@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theory of Computation (303105306) | Dr. Sandeep Wadekar</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-dark: #0f172a;
+      --accent: #0284c7;
+      --accent-gold: #d97706;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      background: var(--bg);
+      color: var(--text);
+    }
+    header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+      border-bottom: 4px solid var(--accent-gold);
+    }
+    header h1 { font-size: 2.2rem; margin-bottom: 8px; letter-spacing: -0.5px; }
+    header p { font-size: 1.05rem; opacity: 0.9; max-width: 800px; margin: 0 auto; }
+    .badge-bar { margin-top: 15px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    .badge { background: rgba(255,255,255,0.15); padding: 5px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    
+    nav {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: center;
+      overflow-x: auto;
+      padding: 0 10px;
+    }
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      padding: 14px 18px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: color 0.2s, border-bottom 0.2s;
+      border-bottom: 3px solid transparent;
+    }
+    nav a:hover { color: var(--accent); border-bottom: 3px solid var(--accent); }
+    
+    .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+    section {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border);
+    }
+    h2 {
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+    
+    .info-card {
+      background: #f1f5f9;
+      border-left: 4px solid var(--accent);
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+    }
+    .info-card h3 { font-size: 1.05rem; margin-bottom: 6px; color: var(--primary); }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95rem; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { background: #f8fafc; font-weight: 600; color: var(--primary); }
+    tr:hover { background: #f8fafc; }
+    
+    .co-pill { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
+    .bloom-pill { display: inline-block; background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 0.8rem; }
+    
+    .btn {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 15px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--accent); }
+    
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Theory of Computation (303105306)</h1>
+  <p>Faculty of Engineering & Technology, Parul University | B.Tech Semester V</p>
+  <div class="badge-bar">
+    <span class="badge">Credits: 3 (3L-0T-0P)</span>
+    <span class="badge">Total Lectures: 45 Hours</span>
+    <span class="badge">CIE: 40 Marks | SEE: 60 Marks</span>
+    <span class="badge">Term: ACY 2026-27 (Odd)</span>
+  </div>
+</header>
+
+<nav>
+  <a href="#overview">Overview</a>
+  <a href="#outcomes">Course Outcomes</a>
+  <a href="#schedule">15-Week Schedule</a>
+  <a href="#assessment">Assessment Plan</a>
+  <a href="#interactive">Interactive Lab</a>
+  <a href="#resources">Learning Resources</a>
+  <a href="#contact">Coordinator & Contact</a>
+</nav>
+
+<div class="container">
+
+  <!-- Overview -->
+  <section id="overview">
+    <h2>1. Course Overview & Objectives</h2>
+    <p>Theory of Computation introduces the foundational mathematical models of computation, formal languages, grammars, and abstract computing machines. Students explore the capabilities and fundamental limitations of computers by investigating finite state machines, context-free grammars, pushdown automata, and Turing machines, concluding with the boundaries of decidability.</p>
+    <div class="grid-2" style="margin-top: 20px;">
+      <div class="info-card">
+        <h3>Prerequisites</h3>
+        <p>Calculus, Discrete Mathematics, and Data Structures & Algorithms.</p>
+      </div>
+      <div class="info-card">
+        <h3>NEP 2020 & Experiential Alignment</h3>
+        <p>Blended pedagogy integrating mathematical problem solving with AI-assisted automata simulators, interactive state machines, and real-world compiler tokenizer design cases.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Outcomes -->
+  <section id="outcomes">
+    <h2>2. Course Outcomes (COs) & Bloom's Taxonomy</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>CO ID</th>
+          <th>Course Outcome Statement</th>
+          <th>Bloom Level</th>
+          <th>Syllabus Unit</th>
+          <th>Weight</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="co-pill">CO1</span></td>
+          <td>Recognize the basic concepts and applications of theory of computation.</td>
+          <td><span class="bloom-pill">K2 Understand</span></td>
+          <td>Unit 1: Introduction</td>
+          <td>5%</td>
+        </tr>
+        <tr>
+          <td><span class="co-pill">CO2</span></td>
+          <td>Solve computational problems using regular languages and finite automata.</td>
+          <td><span class="bloom-pill">K3 Apply</span></td>
+          <td>Unit 2: Regular Languages & FA</td>
+          <td>30%</td>
+        </tr>
+        <tr>
+          <td><span class="co-pill">CO3</span></td>
+          <td>Solve computational problems using context-free grammar and pushdown automata.</td>
+          <td><span class="bloom-pill">K3 / K4 Analyze</span></td>
+          <td>Unit 3: Grammars & PDA</td>
+          <td>35%</td>
+        </tr>
+        <tr>
+          <td><span class="co-pill">CO4</span></td>
+          <td>Design Turing Machine for simple computational problems.</td>
+          <td><span class="bloom-pill">K6 Create</span></td>
+          <td>Unit 4: Turing Machines</td>
+          <td>25%</td>
+        </tr>
+        <tr>
+          <td><span class="co-pill">CO5</span></td>
+          <td>Analyze various concepts of undecidability and computable function.</td>
+          <td><span class="bloom-pill">K4 / K5 Evaluate</span></td>
+          <td>Unit 5: Undecidability</td>
+          <td>5%</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Schedule -->
+  <section id="schedule">
+    <h2>3. 15-Week Semester Schedule (45 Lectures)</h2>
+    <p>Aligned with the Parul University Academic Calendar (ACY 2026-27 Odd Term: June 08 – October 03, 2026).</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Week</th>
+          <th>Lectures</th>
+          <th>Unit & Core Topics</th>
+          <th>Pedagogy & Active Learning</th>
+          <th>Assessment / Milestone</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Week 1</td>
+          <td>L1 – L3</td>
+          <td>U1: Alphabets, Strings, Chomsky Hierarchy, Grammars</td>
+          <td>Interactive Lecture + Think-Pair-Share</td>
+          <td>Diagnostic Knowledge Check</td>
+        </tr>
+        <tr>
+          <td>Week 2</td>
+          <td>L4 – L6</td>
+          <td>U2: Regular Expressions, Formal Languages, DFA Design</td>
+          <td>Peer Instruction & State Tracing</td>
+          <td>Exit Ticket 1 (Muddiest Point)</td>
+        </tr>
+        <tr>
+          <td>Week 3</td>
+          <td>L7 – L9</td>
+          <td>U2: NFA, Equivalence of DFA and NFA, Subset Construction</td>
+          <td>Interactive DFA Simulator Demo</td>
+          <td>Problem Set 1 (FA Conversion)</td>
+        </tr>
+        <tr>
+          <td>Week 4</td>
+          <td>L10 – L12</td>
+          <td>U2: Moore & Mealy Machines, Inter-conversion Algorithms</td>
+          <td>Live Problem Solving in Pairs</td>
+          <td>Quiz 1 (Units 1 & 2)</td>
+        </tr>
+        <tr>
+          <td>Week 5</td>
+          <td>L13 – L15</td>
+          <td>U2: Pumping Lemma for Regular Languages, DFA Minimization</td>
+          <td>Proof Deconstruction & Table Filling</td>
+          <td>Assignment 1 Due (CO1, CO2)</td>
+        </tr>
+        <tr>
+          <td>Week 6</td>
+          <td>L16 – L18</td>
+          <td>U3: Context-Free Grammars (CFG), Derivation Trees, Ambiguity</td>
+          <td>Case Study: Compiler Grammar Ambiguity</td>
+          <td>Exit Ticket 2 (CFG Parsing)</td>
+        </tr>
+        <tr>
+          <td>Week 7</td>
+          <td>L19 – L21</td>
+          <td>U3: Simplification of CFGs, Chomsky Normal Form (CNF)</td>
+          <td>Grammar Refactoring Workshop</td>
+          <td>Practice Worksheet: CNF</td>
+        </tr>
+        <tr>
+          <td>Week 8</td>
+          <td>L22 – L24</td>
+          <td>U3: Pushdown Automata (PDA): Transition Functions, Acceptance</td>
+          <td>Simulation: Stack Trace Tracing</td>
+          <td>Problem Set 2 (PDA Design)</td>
+        </tr>
+        <tr>
+          <td>Week 9</td>
+          <td>L25 – L27</td>
+          <td>U3: Equivalence of CFG and PDA, DPDA vs NPDA</td>
+          <td>Jigsaw Collaborative Problem Solving</td>
+          <td>Quiz 2 (CFG & PDA)</td>
+        </tr>
+        <tr>
+          <td>Week 10</td>
+          <td>L28 – L30</td>
+          <td>U3: Pumping Lemma for CFLs, Closure Properties, CSG</td>
+          <td>Proof Verification Challenge</td>
+          <td>Assignment 2 Due (CO3)</td>
+        </tr>
+        <tr>
+          <td>Week 11</td>
+          <td>—</td>
+          <td><strong>MID-SEMESTER EXAMINATION (Aug 17 – Aug 22, 2026)</strong></td>
+          <td>Institutional Exam Schedule</td>
+          <td>Mid-Sem Exam (20 Marks)</td>
+        </tr>
+        <tr>
+          <td>Week 12</td>
+          <td>L31 – L33</td>
+          <td>U4: Turing Machine Model, Formal Definition, Instantaneous Desc</td>
+          <td>Predict-First TM Step Simulator</td>
+          <td>Mid-Sem Feedback Review</td>
+        </tr>
+        <tr>
+          <td>Week 13</td>
+          <td>L34 – L36</td>
+          <td>U4: TM as Language Accepter and Transducer, Design Examples</td>
+          <td>Board Work & State Transition Mapping</td>
+          <td>Problem Set 3 (TM Design)</td>
+        </tr>
+        <tr>
+          <td>Week 14</td>
+          <td>L37 – L39</td>
+          <td>U4: Variants of TM (Multi-tape, NDTM), Unrestricted Grammars</td>
+          <td>Comparative Matrix Analysis</td>
+          <td>Assignment 3 Due (CO4)</td>
+        </tr>
+        <tr>
+          <td>Week 15</td>
+          <td>L40 – L42</td>
+          <td>U4 & U5: Recursive vs RE Languages, Church-Turing Thesis</td>
+          <td>Socratic Dialogue & Discussion Case</td>
+          <td>Term-Work (T/W) Submission</td>
+        </tr>
+        <tr>
+          <td>Week 16</td>
+          <td>L43 – L45</td>
+          <td>U5: Universal Turing Machine, Halting Problem, Diagonalization</td>
+          <td>Proof Analysis: Cantor's Diagonalization</td>
+          <td>Exit Survey & Revision</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Assessment -->
+  <section id="assessment">
+    <h2>4. Examination & Continuous Assessment Plan</h2>
+    <div class="grid-2">
+      <div class="info-card">
+        <h3>Continuous Internal Evaluation (CIE) - 40 Marks</h3>
+        <ul>
+          <li><strong>Mid-Semester Examination:</strong> 20 Marks (Scaled from 40/50 test)</li>
+          <li><strong>Continuous Evaluation (CE):</strong> 20 Marks
+            <ul>
+              <li>2 Surprise/Online Quizzes (Objective & Tracing): 10 Marks</li>
+              <li>Active Learning / Experiential Case Assignment: 10 Marks</li>
+            </ul>
+          </li>
+          <li><strong>Passing Criterion:</strong> 16 / 40 Marks (40%)</li>
+        </ul>
+      </div>
+      <div class="info-card">
+        <h3>Semester End Examination (SEE) - 60 Marks</h3>
+        <ul>
+          <li><strong>Duration:</strong> 2.5 to 3.0 Hours</li>
+          <li><strong>Structure:</strong> 6 Comprehensive Questions covering Units 1 to 5</li>
+          <li><strong>Bloom Distribution:</strong> Lower Order (K1–K2): 22% | Higher Order (K3–K6): 78%</li>
+          <li><strong>Passing Criterion:</strong> 24 / 60 Marks (40%)</li>
+          <li><strong>Overall Passing:</strong> 40 / 100 Marks (Combined CIE + SEE)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Lab -->
+  <section id="interactive">
+    <h2>5. Interactive Simulation Lab</h2>
+    <p>Experience abstract state transitions visually with our dedicated in-browser simulator. Step through Deterministic Finite Automata (DFA) string validation, observe state transitions dynamically, and predict acceptance before running!</p>
+    <a href="toc_dfa_simulation.html" class="btn" target="_blank">Launch Interactive DFA Simulator →</a>
+  </section>
+
+  <!-- Resources -->
+  <section id="resources">
+    <h2>6. Prescribed Textbooks & Online Resources</h2>
+    <ul>
+      <li><strong>Textbook 1:</strong> John E. Hopcroft, Rajiv Motwani, Jeffery D. Ullman, <em>Introduction to Automata Theory, Languages, and Computation</em>, 3rd Ed., Pearson.</li>
+      <li><strong>Textbook 2:</strong> Michael Sipser, <em>Introduction to the Theory of Computation</em>, 3rd Ed., Cengage Learning.</li>
+      <li><strong>Reference 3:</strong> Harry R. Lewis, Christos H. Papadimitriou, <em>Elements of the Theory of Computation</em>, Pearson Education Asia.</li>
+      <li><strong>Reference 4:</strong> John C. Martin, <em>Introduction to Languages and the Theory of Computation</em>, McGraw Hill.</li>
+      <li><strong>Online Simulator:</strong> JFLAP (Formal Languages and Automata Package) - <a href="http://www.jflap.org" target="_blank">jflap.org</a></li>
+      <li><strong>Interactive Visualizer:</strong> Automata Simulator by Cyberzhg - <a href="https://cyberzhg.github.io/toolbox/" target="_blank">Toolbox Automata</a></li>
+    </ul>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact">
+    <h2>7. Course Coordinator & Office Hours</h2>
+    <div class="grid-2">
+      <div>
+        <p><strong>Course Coordinator:</strong> Dr. Sandeep Wadekar</p>
+        <p><strong>Designation:</strong> Associate Professor & Subject Coordinator</p>
+        <p><strong>Department:</strong> Faculty of Engineering & Technology, Parul University</p>
+        <p><strong>Campus:</strong> Limda, Waghodia, Vadodara, Gujarat - 391760</p>
+      </div>
+      <div>
+        <p><strong>Email:</strong> <a href="mailto:drsandeepwadekar@gmail.com">drsandeepwadekar@gmail.com</a></p>
+        <p><strong>Mobile:</strong> +91 9993075841</p>
+        <p><strong>Student Doubt Consultation:</strong> Tuesday & Thursday, 3:30 PM – 4:30 PM (Cabin 204, FET Block)</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p>© 2026 Faculty of Engineering & Technology, Parul University. All rights reserved.</p>
+  <p>Course Portfolio developed as part of the AI-Enabled Smart Course Design Faculty Development Programme (FDP).</p>
+</footer>
+
+</body>
+</html>

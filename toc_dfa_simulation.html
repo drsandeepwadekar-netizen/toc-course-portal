@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive DFA & State Transition Simulator | Theory of Computation</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --accent: #0284c7;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #cbd5e1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: #1e293b;
+      padding: 24px;
+    }
+    .wrapper { max-width: 900px; margin: 0 auto; }
+    header { margin-bottom: 24px; text-align: center; }
+    header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
+    header p { color: #64748b; font-size: 0.95rem; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card h2 { font-size: 1.15rem; color: var(--primary); margin-bottom: 12px; }
+
+    .control-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    select, input[type="text"] {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+    button {
+      padding: 8px 16px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    button:hover { background: var(--accent); }
+    button.btn-sec { background: #64748b; }
+    button.btn-sec:hover { background: #475569; }
+
+    .states-display {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin: 25px 0;
+      flex-wrap: wrap;
+    }
+    .state-circle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 3px solid #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+      position: relative;
+      background: #f8fafc;
+      transition: all 0.3s;
+    }
+    .state-circle.accept {
+      border: 3px double #16a34a;
+      box-shadow: 0 0 0 3px #16a34a;
+    }
+    .state-circle.active {
+      background: #fef08a;
+      border-color: #ca8a04;
+      transform: scale(1.15);
+      box-shadow: 0 4px 12px rgba(202, 138, 4, 0.4);
+    }
+    .state-circle.start::before {
+      content: "▶ Start";
+      position: absolute;
+      top: -22px;
+      font-size: 0.75rem;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .tape-container {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin: 15px 0;
+    }
+    .tape-cell {
+      width: 38px;
+      height: 44px;
+      border: 2px solid var(--border);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: monospace;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background: white;
+    }
+    .tape-cell.active-char {
+      border-color: var(--accent);
+      background: #e0f2fe;
+      transform: scale(1.08);
+    }
+    .tape-cell.processed { background: #f1f5f9; color: #94a3b8; }
+
+    .prediction-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 14px;
+      margin-top: 15px;
+    }
+    .log-terminal {
+      background: #0f172a;
+      color: #38bdf8;
+      font-family: monospace;
+      padding: 14px;
+      border-radius: 8px;
+      height: 140px;
+      overflow-y: auto;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .result-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      margin-top: 10px;
+    }
+    .result-badge.accepted { background: #dcfce7; color: #15803d; }
+    .result-badge.rejected { background: #fee2e2; color: #b91c1c; }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <header>
+    <h1>Interactive DFA & State Transition Simulator</h1>
+    <p>Theory of Computation (303105306) | Unit 2: Regular Languages & Finite Automata</p>
+  </header>
+
+  <!-- Step 1: Select Automaton -->
+  <div class="card">
+    <h2>1. Select Language Model & Input String</h2>
+    <div class="control-row">
+      <label for="dfa-select"><strong>Automaton:</strong></label>
+      <select id="dfa-select" onchange="loadDFA()">
+        <option value="even_zeros">L = { w ∈ {0,1}* | w contains an even number of 0s }</option>
+        <option value="ends_01">L = { w ∈ {0,1}* | w ends with substring '01' }</option>
+        <option value="div_by_3">L = { w ∈ {0,1}* | binary number represented is divisible by 3 }</option>
+      </select>
+      <label for="input-str"><strong>Input String (w):</strong></label>
+      <input type="text" id="input-str" value="10100" style="width: 120px;">
+      <button onclick="initializeExecution()">Load & Reset</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Active Learning Prediction Engine -->
+  <div class="card" id="prediction-panel">
+    <h2>2. Predict Before Execution (Pedagogical Reflection)</h2>
+    <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 10px;">
+      Cognitive Principle: State your hypothesis regarding string acceptance before stepping through transitions.
+    </p>
+    <div class="control-row">
+      <span>Do you predict this string will be accepted by the DFA?</span>
+      <button class="btn-sec" onclick="recordPrediction(true)">Predict ACCEPT</button>
+      <button class="btn-sec" onclick="recordPrediction(false)">Predict REJECT</button>
+      <span id="prediction-feedback" style="font-weight: bold; margin-left: 10px;"></span>
+    </div>
+  </div>
+
+  <!-- Step 3: Graphical Visualizer -->
+  <div class="card">
+    <h2>3. State Transition Graph & Tape</h2>
+    <div class="tape-container" id="tape-display"></div>
+    <div class="states-display" id="states-container"></div>
+    
+    <div class="control-row" style="justify-content: center; margin-top: 15px;">
+      <button onclick="stepForward()">Step Forward (1 Char)</button>
+      <button class="btn-sec" onclick="runToEnd()">Auto-Run to End</button>
+      <button class="btn-sec" onclick="initializeExecution()">Reset</button>
+    </div>
+
+    <div style="text-align: center;" id="final-result-container"></div>
+  </div>
+
+  <!-- Step 4: Execution Trace Log -->
+  <div class="card">
+    <h2>4. Instantaneous Description (ID) & Trace Log</h2>
+    <div class="log-terminal" id="trace-log"></div>
+  </div>
+</div>
+
+<script>
+  // DFA Definitions
+  const dfas = {
+    even_zeros: {
+      name: "Even number of 0s",
+      states: ["q0", "q1"],
+      start: "q0",
+      accept: ["q0"],
+      transitions: {
+        q0: { '0': "q1", '1': "q0" },
+        q1: { '0': "q0", '1': "q1" }
+      }
+    },
+    ends_01: {
+      name: "Ends with '01'",
+      states: ["q0", "q1", "q2"],
+      start: "q0",
+      accept: ["q2"],
+      transitions: {
+        q0: { '0': "q1", '1': "q0" },
+        q1: { '0': "q1", '1': "q2" },
+        q2: { '0': "q1", '1': "q0" }
+      }
+    },
+    div_by_3: {
+      name: "Binary divisible by 3",
+      states: ["q0", "q1", "q2"],
+      start: "q0",
+      accept: ["q0"],
+      transitions: {
+        q0: { '0': "q0", '1': "q1" },
+        q1: { '0': "q2", '1': "q0" },
+        q2: { '0': "q1", '1': "q2" }
+      }
+    }
+  };
+
+  let currentDFA = dfas.even_zeros;
+  let inputString = "10100";
+  let currentState = "q0";
+  let tapeIndex = 0;
+  let userPrediction = null;
+
+  function loadDFA() {
+    const key = document.getElementById("dfa-select").value;
+    currentDFA = dfas[key];
+    initializeExecution();
+  }
+
+  function recordPrediction(pred) {
+    userPrediction = pred;
+    const txt = pred ? "Predicted: ACCEPT" : "Predicted: REJECT";
+    document.getElementById("prediction-feedback").innerText = txt + " (Proceed to step through!)";
+    document.getElementById("prediction-feedback").style.color = "#0369a1";
+  }
+
+  function initializeExecution() {
+    inputString = document.getElementById("input-str").value.trim();
+    currentState = currentDFA.start;
+    tapeIndex = 0;
+    userPrediction = null;
+    document.getElementById("prediction-feedback").innerText = "";
+    document.getElementById("final-result-container").innerHTML = "";
+
+    // Render Tape
+    const tapeDiv = document.getElementById("tape-display");
+    tapeDiv.innerHTML = "";
+    if (inputString.length === 0) {
+      tapeDiv.innerHTML = '<div class="tape-cell active-char">ε</div>';
+    } else {
+      for (let i = 0; i < inputString.length; i++) {
+        const cell = document.createElement("div");
+        cell.className = "tape-cell" + (i === 0 ? " active-char" : "");
+        cell.id = `cell-${i}`;
+        cell.innerText = inputString[i];
+        tapeDiv.appendChild(cell);
+      }
+    }
+
+    // Render States
+    const statesDiv = document.getElementById("states-container");
+    statesDiv.innerHTML = "";
+    currentDFA.states.forEach(s => {
+      const circle = document.createElement("div");
+      circle.className = "state-circle";
+      if (s === currentDFA.start) circle.classList.add("start");
+      if (currentDFA.accept.includes(s)) circle.classList.add("accept");
+      if (s === currentState) circle.classList.add("active");
+      circle.id = `state-${s}`;
+      circle.innerText = s;
+      statesDiv.appendChild(circle);
+    });
+
+    // Reset Log
+    const log = document.getElementById("trace-log");
+    log.innerHTML = `<div>[INIT] Loaded DFA: ${currentDFA.name}</div>`;
+    log.innerHTML += `<div>[INIT] Start state: ${currentState}, Input: "${inputString || 'ε'}"</div>`;
+  }
+
+  function updateVisuals() {
+    // Update States
+    currentDFA.states.forEach(s => {
+      const el = document.getElementById(`state-${s}`);
+      if (el) {
+        if (s === currentState) el.classList.add("active");
+        else el.classList.remove("active");
+      }
+    });
+
+    // Update Tape
+    for (let i = 0; i < inputString.length; i++) {
+      const cell = document.getElementById(`cell-${i}`);
+      if (cell) {
+        if (i < tapeIndex) {
+          cell.className = "tape-cell processed";
+        } else if (i === tapeIndex) {
+          cell.className = "tape-cell active-char";
+        } else {
+          cell.className = "tape-cell";
+        }
+      }
+    }
+  }
+
+  function stepForward() {
+    if (tapeIndex >= inputString.length) {
+      checkFinalResult();
+      return;
+    }
+
+    const char = inputString[tapeIndex];
+    const log = document.getElementById("trace-log");
+
+    if (!currentDFA.transitions[currentState] || !currentDFA.transitions[currentState][char]) {
+      log.innerHTML += `<div style="color:#ef4444;">[TRAP] No transition defined from ${currentState} on '${char}'</div>`;
+      currentState = "TRAP";
+      tapeIndex++;
+      updateVisuals();
+      checkFinalResult();
+      return;
+    }
+
+    const nextState = currentDFA.transitions[currentState][char];
+    log.innerHTML += `<div>δ(${currentState}, '${char}') ➔ ${nextState}</div>`;
+    currentState = nextState;
+    tapeIndex++;
+    updateVisuals();
+
+    if (tapeIndex >= inputString.length) {
+      checkFinalResult();
+    }
+  }
+
+  function runToEnd() {
+    while (tapeIndex < inputString.length && currentState !== "TRAP") {
+      stepForward();
+    }
+    checkFinalResult();
+  }
+
+  function checkFinalResult() {
+    const isAccepted = currentDFA.accept.includes(currentState);
+    const resDiv = document.getElementById("final-result-container");
+    const log = document.getElementById("trace-log");
+
+    let html = `<div class="result-badge ${isAccepted ? 'accepted' : 'rejected'}">`;
+    html += `String is ${isAccepted ? 'ACCEPTED' : 'REJECTED'} (Final State: ${currentState})</div>`;
+
+    if (userPrediction !== null) {
+      const correct = (userPrediction === isAccepted);
+      html += `<div style="margin-top: 8px; font-weight: bold; color: ${correct ? '#15803d' : '#b91c1c'};">`;
+      html += correct ? "✓ Your prediction was correct!" : "✗ Your prediction differed from the actual automaton result. Review the state trace!";
+      html += `</div>`;
+    }
+
+    resDiv.innerHTML = html;
+    log.innerHTML += `<div><strong>[HALT] Final State: ${currentState} | Result: ${isAccepted ? 'ACCEPTED' : 'REJECTED'}</strong></div>`;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  // Initialize on load
+  window.onload = loadDFA;
+</script>
+
+</body>
+</html>
